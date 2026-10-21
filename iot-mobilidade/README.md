@@ -91,8 +91,8 @@ Cada um aceita `--help`/argumentos para mudar o intervalo e provocar situações
 **UC-01 · Congestionamento.** A regra vem com janela de 10 min; para a demonstração, reduza-a para 30 s:
 
 ```bash
-curl -u admin:admin123 http://localhost:8080/api/v1/regras                       # confira o id da regra "Congestionamento" (1)
-curl -u admin:admin123 -X POST "http://localhost:8080/api/v1/regras/1/janela?segundos=30"
+curl -u SEU_USUARIO:SUA_SENHA http://localhost:8080/api/v1/regras                       # confira o id da regra "Congestionamento" (1)
+curl -u SEU_USUARIO:SUA_SENHA -X POST "http://localhost:8080/api/v1/regras/1/janela?segundos=30"
 cd simuladores/java && java Simulador.java --intervalo 3 --congestionar cruz-brasil-rua10 --congestionar-apos 15 --congestionar-por 120
 ```
 
@@ -127,12 +127,12 @@ curl -H "Content-Type: application/json" -d '{"versao":"1.0"}' http://localhost:
 **UC-04 · Domínio novo só por configuração (estacionamento).**
 
 ```bash
-curl -u admin:admin123 -H "Content-Type: application/json" -d '{"slug":"estacionamento","nome":"Estacionamento"}' http://localhost:8080/api/v1/catalogo/dominios
-curl -u admin:admin123 -H "Content-Type: application/json" -d '{"dominio":"estacionamento","slug":"sensor-vaga","nome":"Sensor de vaga","intervaloS":120,"grandezas":[{"grandeza":"vagas_livres","unidade":"{vaga}","min":0,"max":200}]}' http://localhost:8080/api/v1/catalogo/perfis
-curl -u admin:admin123 -H "Content-Type: application/json" -d '{"slug":"vagas-praca-01","dominio":"estacionamento","site":"centro","area":"cruz-central-av2","perfil":"sensor-vaga","fabricante":"Simulado","firmware":"1.0"}' http://localhost:8080/api/v1/dispositivos
+curl -u SEU_USUARIO:SUA_SENHA -H "Content-Type: application/json" -d '{"slug":"estacionamento","nome":"Estacionamento"}' http://localhost:8080/api/v1/catalogo/dominios
+curl -u SEU_USUARIO:SUA_SENHA -H "Content-Type: application/json" -d '{"dominio":"estacionamento","slug":"sensor-vaga","nome":"Sensor de vaga","intervaloS":120,"grandezas":[{"grandeza":"vagas_livres","unidade":"{vaga}","min":0,"max":200}]}' http://localhost:8080/api/v1/catalogo/perfis
+curl -u SEU_USUARIO:SUA_SENHA -H "Content-Type: application/json" -d '{"slug":"vagas-praca-01","dominio":"estacionamento","site":"centro","area":"cruz-central-av2","perfil":"sensor-vaga","fabricante":"Simulado","firmware":"1.0"}' http://localhost:8080/api/v1/dispositivos
 # a resposta traz o token do dispositivo; use-o abaixo
 curl -H "Content-Type: application/json" -H "X-Device-Token: COLE_O_TOKEN" -d "{\"versao\":\"1.0\",\"id_mensagem\":\"vaga-$(date +%s)\",\"dispositivo\":\"vagas-praca-01\",\"tipo\":\"telemetria\",\"timestamp\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"medidas\":[{\"grandeza\":\"vagas_livres\",\"valor\":12}]}" http://localhost:8080/api/v1/ingestao
-curl -u admin:admin123 -H "Content-Type: application/json" -d '{"nome":"Estacionamento lotado","dominio":"estacionamento","grandeza":"vagas_livres","operador":"=","limite":0,"janelaS":900,"severidade":"MEDIA"}' http://localhost:8080/api/v1/regras
+curl -u SEU_USUARIO:SUA_SENHA -H "Content-Type: application/json" -d '{"nome":"Estacionamento lotado","dominio":"estacionamento","grandeza":"vagas_livres","operador":"=","limite":0,"janelaS":900,"severidade":"MEDIA"}' http://localhost:8080/api/v1/regras
 ```
 
 Nenhuma linha de código foi alterada: o domínio novo já tem histórico, regras, alarmes e API.
