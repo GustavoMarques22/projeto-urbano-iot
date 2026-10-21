@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Mensagem canônica v1.0",
+  "description": "Formato único em que toda telemetria, evento ou estado circula na Plataforma IoT Integrada.",
+  "type": "object",
+  "required": ["versao", "id_mensagem", "dispositivo", "tipo", "timestamp", "medidas"],
+  "additionalProperties": false,
+  "properties": {
+    "versao": { "const": "1.0" },
+    "id_mensagem": { "type": "string", "minLength": 8, "maxLength": 64 },
+    "dispositivo": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{1,59}$" },
+    "tipo": { "enum": ["telemetria", "evento", "estado"] },
+    "timestamp": { "type": "string", "format": "date-time", "description": "Momento da medição, em UTC (ISO 8601)." },
+    "via": { "type": "string", "maxLength": 60, "description": "Nó de borda ou gateway por onde a mensagem passou." },
+    "local": {
+      "type": "object",
+      "properties": {
+        "site": { "type": "string" },
+        "area": { "type": "string" },
+        "geo": {
+          "type": "object",
+          "required": ["type", "coordinates"],
+          "properties": {
+            "type": { "const": "Point" },
+            "coordinates": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 3 }
+          }
+        }
+      }
+    },
+    "medidas": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "required": ["grandeza", "valor"],
+        "additionalProperties": false,
+        "properties": {
+          "grandeza": { "type": "string", "minLength": 1, "maxLength": 60 },
+          "valor": { "type": "number" },
+          "unidade": { "type": "string", "maxLength": 30 }
+        }
+      }
+    }
+  }
+}

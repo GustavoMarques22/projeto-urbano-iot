@@ -1,0 +1,9 @@
+target/
+data/
+*.db
+*.db-wal
+*.db-shm
+.idea/
+*.iml
+node_modules/
+__pycache__/

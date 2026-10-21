@@ -1,0 +1,62 @@
+asyncapi: 3.0.0
+info:
+  title: Plataforma IoT Integrada - interface assíncrona (MQTT)
+  version: 1.0.0
+  description: Tópicos MQTT e mensagem canônica. Qualquer linguagem que fale MQTT se integra.
+servers:
+  central:
+    host: localhost:1883
+    protocol: mqtt
+    description: Broker MQTT da instância central
+  borda:
+    host: localhost:1884
+    protocol: mqtt
+    description: Broker MQTT local do nó de borda
+channels:
+  telemetria:
+    address: '{inquilino}/{site}/{dominio}/{dispositivo}/telemetria'
+    parameters:
+      inquilino: { description: Slug do inquilino, ex. semob }
+      site: { description: Local, ex. centro }
+      dominio: { description: Domínio do catálogo, ex. mobilidade }
+      dispositivo: { description: Slug do dispositivo cadastrado }
+    messages:
+      mensagemCanonica:
+        $ref: '#/components/messages/mensagemCanonica'
+  evento:
+    address: '{inquilino}/{site}/{dominio}/{dispositivo}/evento'
+    parameters:
+      inquilino: {}
+      site: {}
+      dominio: {}
+      dispositivo: {}
+    messages:
+      mensagemCanonica:
+        $ref: '#/components/messages/mensagemCanonica'
+  estado:
+    address: '{inquilino}/{site}/{dominio}/{dispositivo}/estado'
+    parameters:
+      inquilino: {}
+      site: {}
+      dominio: {}
+      dispositivo: {}
+    messages:
+      mensagemCanonica:
+        $ref: '#/components/messages/mensagemCanonica'
+operations:
+  publicarTelemetria:
+    action: send
+    channel: { $ref: '#/channels/telemetria' }
+    summary: O dispositivo (ou nó de borda) publica telemetria.
+  publicarEvento:
+    action: send
+    channel: { $ref: '#/channels/evento' }
+  publicarEstado:
+    action: send
+    channel: { $ref: '#/channels/estado' }
+components:
+  messages:
+    mensagemCanonica:
+      contentType: application/json
+      payload:
+        $ref: 'mensagem-canonica-v1.json'

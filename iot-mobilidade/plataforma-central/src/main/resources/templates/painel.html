@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel de Mobilidade · Plataforma IoT Integrada</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" th:href="@{/css/painel.css}">
+</head>
+<body>
+<header>
+  <div>
+    <h1>Plataforma IoT Integrada</h1>
+    <span class="sub">Monitoramento de fluxo de tráfego · Secretaria de Mobilidade</span>
+  </div>
+  <div class="usuario">
+    <span th:text="${usuario}">usuario</span>
+    <form th:action="@{/logout}" method="post"><button type="submit">Sair</button></form>
+  </div>
+</header>
+
+<main>
+  <section class="card mapa-card">
+    <h2>Mapa dos cruzamentos <span id="atualizado" class="mudo"></span></h2>
+    <div id="mapa"></div>
+    <div class="legenda">
+      <span><i style="background:#2e7d32"></i> Fluido (≥ 30 km/h)</span>
+      <span><i style="background:#f9a825"></i> Moderado (15 a 30 km/h)</span>
+      <span><i style="background:#c62828"></i> Congestionado (&lt; 15 km/h)</span>
+      <span><i style="background:#9e9e9e"></i> Sem dados</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Alarmes abertos <span id="qtd-alarmes" class="selo">0</span></h2>
+    <div class="rolagem">
+      <table id="tabela-alarmes">
+        <thead><tr><th>Severidade</th><th>Regra</th><th>Local</th><th>Desde</th><th>Estado</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Nós de borda</h2>
+    <table id="tabela-nos">
+      <thead><tr><th>Nó</th><th>Situação</th><th>Última sincronização</th><th>Fila pendente</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section class="card grafico-card">
+    <h2>Fluxo e velocidade: <span id="area-selecionada">clique em um cruzamento no mapa</span></h2>
+    <div class="controles">
+      <label>Visão
+        <select id="modo">
+          <option value="brutos">Leituras (últimos 60 min)</option>
+          <option value="hora">Média por hora (últimas 24 h)</option>
+        </select>
+      </label>
+    </div>
+    <div class="grafico"><canvas id="grafico"></canvas></div>
+  </section>
+
+  <section class="card">
+    <h2>Dispositivos</h2>
+    <div class="rolagem">
+      <table id="tabela-dispositivos">
+        <thead><tr><th>Dispositivo</th><th>Área</th><th>Situação</th><th>Último dado</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<footer>UniEVANGÉLICA · Internet das Coisas · projeto acadêmico</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script th:src="@{/js/painel.js}"></script>
+</body>
+</html>

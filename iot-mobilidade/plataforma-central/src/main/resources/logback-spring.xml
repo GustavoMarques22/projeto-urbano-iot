@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <!-- Padrão: logs estruturados em JSON, com o identificador de correlação (id_mensagem) -->
+  <springProfile name="!texto">
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    </appender>
+    <root level="INFO"><appender-ref ref="CONSOLE"/></root>
+  </springProfile>
+  <!-- Para desenvolvimento: ative o perfil texto -->
+  <springProfile name="texto">
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder>
+        <pattern>%d{HH:mm:ss.SSS} %-5level [%X{correlationId}] %logger{20} - %msg%n</pattern>
+      </encoder>
+    </appender>
+    <root level="INFO"><appender-ref ref="CONSOLE"/></root>
+  </springProfile>
+</configuration>

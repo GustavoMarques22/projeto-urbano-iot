@@ -1,0 +1,64 @@
+# Plataforma IoT Integrada - ambiente completo
+#   docker compose up -d postgres mosquitto mosquitto-borda   -> só a infraestrutura (rode as aplicações com Maven)
+#   docker compose up --build                                 -> tudo em contêineres
+services:
+  postgres:
+    image: timescale/timescaledb:latest-pg16
+    environment:
+      POSTGRES_DB: iot
+      POSTGRES_USER: iot
+      POSTGRES_PASSWORD: iot
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U iot -d iot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Broker MQTT da central (porta 1883)
+  mosquitto:
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  # Broker MQTT local do nó de borda (porta 1884)
+  mosquitto-borda:
+    image: eclipse-mosquitto:2
+    ports:
+      - "1884:1883"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  central:
+    build: ./plataforma-central
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/iot
+      PLATAFORMA_MQTT_URL: tcp://mosquitto:1883
+    ports:
+      - "8080:8080"
+
+  borda:
+    build: ./no-borda
+    depends_on:
+      - central
+      - mosquitto-borda
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:sqlite:/data/borda.db?journal_mode=WAL&busy_timeout=5000
+      BORDA_CENTRAL_URL: http://central:8080
+      BORDA_MQTT_URL: tcp://mosquitto-borda:1883
+    ports:
+      - "8081:8081"
+    volumes:
+      - bordadata:/data
+
+volumes:
+  pgdata:
+  bordadata:

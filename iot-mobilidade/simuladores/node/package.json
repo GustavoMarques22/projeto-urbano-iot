@@ -1,0 +1,8 @@
+{
+  "name": "simulador-semaforos",
+  "version": "1.0.0",
+  "description": "Simulador de semáforos (Node.js, MQTT) para a Plataforma IoT Integrada",
+  "main": "simulador.js",
+  "scripts": { "start": "node simulador.js" },
+  "dependencies": { "mqtt": "^5.10.0" }
+}
