@@ -21,7 +21,7 @@ button.claro { background: var(--azul-claro); color: var(--azul); margin-left: 8
 /* ---------- topo ---------- */
 .topo { background: linear-gradient(100deg, var(--azul) 0%, var(--azul-2) 100%); color: #fff; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 10px 28px; border-bottom: 4px solid var(--agua); }
 .marca { display: flex; align-items: center; gap: 18px; }
-.marca img { height: 36px; width: auto; display: block; }
+.marca img { height: 40px; width: 40px; display: block; }
 .marca .sep { width: 1px; height: 34px; background: rgba(255,255,255,.3); }
 .marca h1 { margin: 0; font-size: 1.12rem; letter-spacing: .2px; }
 .marca span { font-size: .8rem; opacity: .85; }
@@ -147,7 +147,7 @@ footer { text-align: center; color: var(--mudo); font-size: .78rem; padding: 14p
 .login-card { width: min(400px, 100%); background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,.35); }
 .login-corpo { padding: 24px 30px 28px; }
 .login-marca { background: var(--azul); padding: 24px 18px; text-align: center; border-bottom: 4px solid var(--agua); }
-.login-marca img { height: 40px; width: auto; }
+.login-marca img { height: 68px; width: 68px; }
 .login-card h1 { margin: 0; font-size: 1.3rem; color: var(--azul); }
 .login-card p { margin: 4px 0 18px; color: var(--mudo); font-size: .9rem; }
 .login-card label { display: block; font-size: .8rem; font-weight: 700; color: var(--mudo); margin-bottom: 12px; text-transform: uppercase; letter-spacing: .4px; }
@@ -168,7 +168,7 @@ footer { text-align: center; color: var(--mudo); font-size: .78rem; padding: 14p
 }
 @media (max-width: 640px) {
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 12px 12px 0; } .grade { padding: 12px; }
-  .topo { flex-direction: column; align-items: flex-start; padding: 10px 14px; gap: 8px; } .marca .sep, .marca span, #btn-tela-cheia, .usuario { display: none; } .marca img { height: 28px; } .marca h1 { font-size: 1rem; }
+  .topo { flex-direction: column; align-items: flex-start; padding: 10px 14px; gap: 8px; } .marca .sep, .marca span, #btn-tela-cheia, .usuario { display: none; } .marca img { height: 30px; width: 30px; } .marca h1 { font-size: 1rem; }
   .topo-acoes { width: 100%; justify-content: space-between; } #mapa { height: 340px; } input[type=search] { min-width: 0; width: 100%; } .tabela-topo { flex-direction: column; align-items: stretch; }
   #toasts { right: 10px; left: 10px; width: auto; }
   .spark { width: 36%; height: 34px; }

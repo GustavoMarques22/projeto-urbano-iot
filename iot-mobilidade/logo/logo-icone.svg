@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Plataforma IoT Integrada">
+  <defs>
+    <linearGradient id="fundo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2fb0c4"/>
+      <stop offset="1" stop-color="#1b6f80"/>
+    </linearGradient>
+  </defs>
+  <g>
+    <rect width="64" height="64" rx="15" fill="url(#fundo)"/>
+    <rect x="13" y="11" width="24" height="42" rx="12" fill="#10243d"/>
+    <circle cx="25" cy="22" r="5.2" fill="#ff5a52"/>
+    <circle cx="25" cy="32" r="5.2" fill="#ffc02e"/>
+    <circle cx="25" cy="42" r="5.2" fill="#35d07f"/>
+    <g fill="none" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round">
+      <path d="M43.3 27.1A8 8 0 0 1 43.3 36.9"/>
+      <path d="M48 23.4A14 14 0 0 1 48 40.6" opacity=".8"/>
+      <path d="M52.8 19.7A20 20 0 0 1 52.8 44.3" opacity=".55"/>
+    </g>
+  </g>
+</svg>

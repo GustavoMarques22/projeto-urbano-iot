@@ -341,9 +341,9 @@ ROTEIRO_PASSOS = [
     ("Ato 5: vagas livres = 12", lambda: a_uc4_vaga(12), 3),
     ("Ato 5: vagas livres = 0 (abre alarme)", lambda: a_uc4_vaga(0), 8),
     ("Ato 5: vagas livres = 5 (resolve o alarme)", lambda: a_uc4_vaga(5), 3),
-    ("Ato 6: teste de carga", a_carga, 2),
     ("Prova: parar o simulador Python", parar_python, 12),
-    ("Prova: enviadas pela borda x gravadas pela central", a_prova, 1),
+    ("Prova: enviadas pela borda x gravadas pela central", a_prova, 2),
+    ("Ato 6: teste de carga", a_carga, 1),
 ]
 
 
