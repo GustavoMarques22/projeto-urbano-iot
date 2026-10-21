@@ -83,7 +83,8 @@ public class IngestaoService {
             }
 
             // 3. deduplicar (Idempotent Receiver)
-            int novo = jdbc.update("INSERT INTO mensagem_processada (id_mensagem) VALUES (?) ON CONFLICT DO NOTHING", id);
+            int novo = jdbc.update("INSERT INTO mensagem_processada (id_mensagem, inquilino) VALUES (?, ?) ON CONFLICT DO NOTHING",
+                    id, d.inquilino());
             if (novo == 0) {
                 contar("duplicada");
                 return new ResultadoMensagem(id, "DUPLICADA", null);

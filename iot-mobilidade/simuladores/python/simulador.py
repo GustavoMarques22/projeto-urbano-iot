@@ -88,7 +88,7 @@ def main():
                     cliente.publish(topico, json.dumps(msg), qos=1)
                     enviadas += 1
             if enviadas % 10 == 0:
-                estado = "CONGESTIONADO" if em_congestionamento else "normal"
+                estado = "CONGESTIONADO" if (em_congestionamento and args.congestionar) else "normal"
                 print(f"{enviadas} mensagens enviadas ({estado})")
             time.sleep(args.intervalo)
     except KeyboardInterrupt:

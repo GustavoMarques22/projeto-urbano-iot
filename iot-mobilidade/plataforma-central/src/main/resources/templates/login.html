@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entrar · Plataforma IoT Integrada</title>
+  <link rel="stylesheet" th:href="@{/css/painel.css}">
+</head>
+<body class="login-page">
+  <main class="login-card">
+    <div class="login-marca"><img th:src="@{/img/logo-unievangelica.png}" alt="UniEVANGÉLICA"></div>
+    <div class="login-corpo">
+    <h1>Plataforma IoT Integrada</h1>
+    <p>Monitoramento de fluxo de tráfego urbano</p>
+    <div th:if="${param.error}" class="alerta-login erro">Usuário ou senha inválidos.</div>
+    <div th:if="${param.logout}" class="alerta-login ok">Sessão encerrada com sucesso.</div>
+    <form th:action="@{/login}" method="post">
+      <label>Usuário<input type="text" name="username" autocomplete="username" autofocus required></label>
+      <label>Senha<input type="password" name="password" autocomplete="current-password" required></label>
+      <button type="submit">Entrar</button>
+    </form>
+    </div>
+  </main>
+</body>
+</html>

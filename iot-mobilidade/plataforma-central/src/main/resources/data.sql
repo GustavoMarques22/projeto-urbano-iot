@@ -10,11 +10,16 @@ ON CONFLICT DO NOTHING;
 
 INSERT INTO area (inquilino, slug, site_slug, nome, lat, lon) VALUES
   ('semob', 'cruz-brasil-rua10', 'centro', 'Av. Brasil x Rua 10', -16.3281, -48.9528),
-  ('semob', 'cruz-brasil-rua15', 'centro', 'Av. Brasil x Rua 15', -16.3262, -48.9531),
-  ('semob', 'cruz-central-av2', 'centro', 'Praça Central x Av. 2', -16.3300, -48.9490),
+  ('semob', 'cruz-brasil-rua15', 'centro', 'Av. Brasil x Rua 15', -16.3215, -48.9548),
+  ('semob', 'cruz-central-av2', 'centro', 'Praça Central x Av. 2', -16.3312, -48.9468),
   ('semob', 'cruz-norte-1', 'periferia-norte', 'Cruzamento Norte 1', -16.3050, -48.9480),
-  ('semob', 'cruz-norte-2', 'periferia-norte', 'Cruzamento Norte 2', -16.3020, -48.9440)
+  ('semob', 'cruz-norte-2', 'periferia-norte', 'Cruzamento Norte 2', -16.3005, -48.9425)
 ON CONFLICT DO NOTHING;
+
+-- bancos já criados: ajusta as coordenadas para o mapa de demonstração
+UPDATE area SET lat = -16.3215, lon = -48.9548 WHERE inquilino = 'semob' AND slug = 'cruz-brasil-rua15';
+UPDATE area SET lat = -16.3312, lon = -48.9468 WHERE inquilino = 'semob' AND slug = 'cruz-central-av2';
+UPDATE area SET lat = -16.3005, lon = -48.9425 WHERE inquilino = 'semob' AND slug = 'cruz-norte-2';
 
 INSERT INTO perfil (inquilino, slug, dominio_slug, nome, intervalo_s) VALUES
   ('semob', 'contador-veiculos', 'mobilidade', 'Contador de veículos', 60),

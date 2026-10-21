@@ -30,13 +30,13 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/v1/ingestao", "/api/v1/ingestao/**",
                         "/api/v1/borda/**", "/webhook-demo").permitAll()
                 .requestMatchers("/contratos/**", "/actuator/**", "/swagger-ui/**", "/swagger-ui.html",
-                        "/v3/api-docs/**", "/error", "/css/**", "/js/**").permitAll()
+                        "/v3/api-docs/**", "/error", "/css/**", "/js/**", "/img/**", "/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/mensagens-invalidas").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/v1/**").hasAnyRole("ADMIN", "OPERADOR", "LEITOR")
                 .requestMatchers(HttpMethod.POST, "/api/v1/alarmes/*/reconhecer").hasAnyRole("ADMIN", "OPERADOR")
                 .requestMatchers("/api/v1/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
-            .formLogin(Customizer.withDefaults())
+            .formLogin(form -> form.loginPage("/login").defaultSuccessUrl("/painel", true).permitAll())
             .httpBasic(Customizer.withDefaults());
         return http.build();
     }

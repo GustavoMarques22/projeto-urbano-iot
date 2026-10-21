@@ -40,6 +40,8 @@ mvn spring-boot:run
 
 **Opção B: tudo em contêineres** (a primeira vez demora, pois o Maven baixa as dependências): `docker compose up --build`.
 
+O PostgreSQL do compose usa a porta **5433** no seu computador (a 5432 costuma estar ocupada); a central já aponta para ela.
+
 Na primeira execução a central cria as tabelas e carrega o cenário de mobilidade (`schema.sql` e `data.sql`):
 inquilino `semob`, 5 cruzamentos, 8 dispositivos, perfis, 2 regras e o nó `borda-periferia-norte`.
 
@@ -53,6 +55,21 @@ inquilino `semob`, 5 cruzamentos, 8 dispositivos, perfis, 2 regras e o nó `bord
 
 Usuários de demonstração: `admin / admin123` (tudo), `operador / operador123` (consulta e reconhece alarmes),
 `leitor / leitor123` (só consulta). Todos pertencem ao inquilino `semob`. **Troque as senhas fora do ambiente acadêmico.**
+
+## Painel de demonstração
+
+Depois do login (página própria, com a marca da instituição), o painel mostra, sem precisar rolar em tela cheia (1920×1080):
+
+- **Indicadores:** cruzamentos por situação, alarmes abertos (críticos e altos), dispositivos online, mensagens por minuto (com mini-gráfico),
+  dados reenviados pela borda e mensagens recusadas.
+- **Mapa:** cada cruzamento é um marcador com a **velocidade média**, colorido pelo nível de fluxo; o congestionado **pulsa**; o selo **B** indica
+  que o cruzamento é atendido por nó de borda. Clique em um cruzamento para ver o histórico.
+- **Alarmes** com severidade, tempo e botão Reconhecer, mais **avisos** na tela quando um alarme abre ou é resolvido.
+- **Nó de borda:** estado visto pela central **e a fila local ao vivo**, lida direto do nó, com os botões **Derrubar link** e **Restaurar link**
+  (o painel fala com o nó em `http://<mesmo host>:8081`; para outro endereço, defina `window.EDGE_URL` antes de carregar `painel.js`).
+- **Atividade recente:** linha do tempo de alarmes, quedas de link e dispositivos que ficaram online/offline.
+- **Gráfico** de fluxo e velocidade com a linha do limite de congestionamento, em leituras (60 min) ou média por hora (24 h).
+- **Dispositivos** com tipo, área e situação, e filtro de texto.
 
 ## Simuladores
 
@@ -86,6 +103,7 @@ o alarme é **resolvido sozinho**. Para o semáforo: `node simulador.js --falha 
 **UC-02 · Cruzamento sem conexão (borda).** Com o simulador Python rodando:
 
 ```bash
+# pelo painel: botão "Derrubar link" no cartão do nó de borda (ou pelos comandos abaixo)
 curl -X POST "http://localhost:8081/api/v1/borda/link?ligado=false"     # derruba o link com a central
 curl http://localhost:8081/api/v1/borda/status                          # filaPendente cresce a cada leitura
 # no painel: o nó vira "SEM SINCRONIZAR" em ~1 min e os contadores norte ficam OFFLINE em ~3 min
@@ -109,13 +127,12 @@ curl -H "Content-Type: application/json" -d '{"versao":"1.0"}' http://localhost:
 **UC-04 · Domínio novo só por configuração (estacionamento).**
 
 ```bash
-A="-u admin:admin123 -H Content-Type:application/json"
-curl $A -d '{"slug":"estacionamento","nome":"Estacionamento"}' http://localhost:8080/api/v1/catalogo/dominios
-curl $A -d '{"dominio":"estacionamento","slug":"sensor-vaga","nome":"Sensor de vaga","intervaloS":120,"grandezas":[{"grandeza":"vagas_livres","unidade":"{vaga}","min":0,"max":200}]}' http://localhost:8080/api/v1/catalogo/perfis
-curl $A -d '{"slug":"vagas-praca-01","dominio":"estacionamento","site":"centro","area":"cruz-central-av2","perfil":"sensor-vaga","fabricante":"Simulado","firmware":"1.0"}' http://localhost:8080/api/v1/dispositivos
+curl -u admin:admin123 -H "Content-Type: application/json" -d '{"slug":"estacionamento","nome":"Estacionamento"}' http://localhost:8080/api/v1/catalogo/dominios
+curl -u admin:admin123 -H "Content-Type: application/json" -d '{"dominio":"estacionamento","slug":"sensor-vaga","nome":"Sensor de vaga","intervaloS":120,"grandezas":[{"grandeza":"vagas_livres","unidade":"{vaga}","min":0,"max":200}]}' http://localhost:8080/api/v1/catalogo/perfis
+curl -u admin:admin123 -H "Content-Type: application/json" -d '{"slug":"vagas-praca-01","dominio":"estacionamento","site":"centro","area":"cruz-central-av2","perfil":"sensor-vaga","fabricante":"Simulado","firmware":"1.0"}' http://localhost:8080/api/v1/dispositivos
 # a resposta traz o token do dispositivo; use-o abaixo
 curl -H "Content-Type: application/json" -H "X-Device-Token: COLE_O_TOKEN" -d "{\"versao\":\"1.0\",\"id_mensagem\":\"vaga-$(date +%s)\",\"dispositivo\":\"vagas-praca-01\",\"tipo\":\"telemetria\",\"timestamp\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"medidas\":[{\"grandeza\":\"vagas_livres\",\"valor\":12}]}" http://localhost:8080/api/v1/ingestao
-curl $A -d '{"nome":"Estacionamento lotado","dominio":"estacionamento","grandeza":"vagas_livres","operador":"=","limite":0,"janelaS":900,"severidade":"MEDIA"}' http://localhost:8080/api/v1/regras
+curl -u admin:admin123 -H "Content-Type: application/json" -d '{"nome":"Estacionamento lotado","dominio":"estacionamento","grandeza":"vagas_livres","operador":"=","limite":0,"janelaS":900,"severidade":"MEDIA"}' http://localhost:8080/api/v1/regras
 ```
 
 Nenhuma linha de código foi alterada: o domínio novo já tem histórico, regras, alarmes e API.
@@ -169,11 +186,14 @@ O que foi exercitado:
 
 - `schema.sql` e `data.sql` rodaram duas vezes num PostgreSQL 16 real (idempotentes).
 - As classes reais de ingestão, validação, regras, alarmes, consultas, lote e catálogo foram executadas contra esse PostgreSQL
-  (45 verificações: duplicata, dado de 48 h atrás, alarme abrir/não duplicar/resolver, equipamento sem dados, paginação, domínio novo...).
+  (55 verificações: duplicata, dado de 48 h atrás, alarme abrir/não duplicar/resolver, equipamento sem dados, paginação, domínio novo,
+  indicadores do painel...).
   O Spring usado nessa verificação foi a versão 4.3 do Ubuntu, com stubs para as bibliotecas que faltavam.
 - Os simuladores Python e Node.js e o adaptador rodaram contra dois brokers Mosquitto; o simulador Java enviou HTTP a um servidor de teste.
   Todas as mensagens geradas validam no JSON Schema; os casos inválidos (sem medidas, versão errada, campo de placa...) são recusados.
 - As instruções SQL da fila do nó de borda rodaram num SQLite real (prioridade, ordem pelo horário e duplicata).
+- O painel e a página de login foram renderizados num navegador (Chromium headless) com dados simulados: marcadores, alarmes, avisos, nó de borda
+  com queda de link, tela de 1920×1080 e celular, sem erros de JavaScript. Depois, o grupo rodou o sistema completo e validou os casos de uso.
 
 **Não verificado (verifiquem no primeiro build):** a inicialização do Spring Boot (configuração de segurança com Spring Security 6,
 `logback-spring.xml`, versões das dependências), o painel no navegador, o nó de borda em execução, a hipertabela do TimescaleDB e o Docker.

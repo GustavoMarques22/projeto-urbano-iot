@@ -9,9 +9,11 @@ import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
@@ -54,6 +56,13 @@ public class ConsultaController {
             alarmes.put((String) a.get("area_slug"), ((Number) a.get("n")).longValue());
         }
 
+        // áreas cujas mensagens chegaram recentemente por um nó de borda (campo via)
+        Set<String> viaBorda = new HashSet<>();
+        for (Map<String, Object> v : jdbc.queryForList("SELECT DISTINCT area_slug FROM telemetria "
+                + "WHERE inquilino = ? AND via IS NOT NULL AND ts > now() - interval '6 hours'", inq)) {
+            viaBorda.add((String) v.get("area_slug"));
+        }
+
         List<Map<String, Object>> saida = new ArrayList<>();
         for (Map<String, Object> area : areas) {
             String slug = (String) area.get("slug");
@@ -90,6 +99,7 @@ public class ConsultaController {
             item.put("ts", ultimo == null ? null : ultimo.toString());
             item.put("alarmes", alarmes.getOrDefault(slug, 0L));
             item.put("nivel", nivel);
+            item.put("via_borda", viaBorda.contains(slug));
             saida.add(item);
         }
         return saida;

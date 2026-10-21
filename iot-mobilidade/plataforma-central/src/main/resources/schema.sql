@@ -68,6 +68,8 @@ CREATE TABLE IF NOT EXISTS mensagem_processada (
   id_mensagem VARCHAR(64) PRIMARY KEY,
   recebida_em TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+ALTER TABLE mensagem_processada ADD COLUMN IF NOT EXISTS inquilino VARCHAR(60);
+CREATE INDEX IF NOT EXISTS idx_msg_recebida ON mensagem_processada (inquilino, recebida_em);
 
 -- Série temporal (vira hipertabela do TimescaleDB quando a extensão existe)
 CREATE TABLE IF NOT EXISTS telemetria (
