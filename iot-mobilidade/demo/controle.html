@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Controle da demonstração · Plataforma IoT Integrada</title>
+<style>
+:root { --azul:#1f3a5f; --azul2:#27496f; --agua:#1f7a8c; --fundo:#eef2f7; --borda:#d5dde7; --texto:#1c2733; --mudo:#6b7280; --verde:#2e9e5b; --verm:#d32f2f; --amb:#f2a516; }
+* { box-sizing:border-box; }
+body { margin:0; font-family:"Segoe UI",system-ui,Roboto,Arial,sans-serif; background:var(--fundo); color:var(--texto); font-size:15px; }
+header { background:linear-gradient(100deg,var(--azul),var(--azul2)); color:#fff; padding:12px 26px; border-bottom:4px solid var(--agua); display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap; }
+header h1 { margin:0; font-size:1.15rem; } header small { opacity:.85; }
+.chips { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.chip { background:rgba(255,255,255,.14); border-radius:999px; padding:5px 12px; font-size:.82rem; font-weight:600; display:inline-flex; gap:7px; align-items:center; }
+.chip i { width:9px; height:9px; border-radius:50%; background:#9aa5b1; } .chip.ok i { background:#5ce08a; } .chip.falha i { background:#ff6b6b; }
+a.botao-painel { color:#fff; background:var(--agua); text-decoration:none; padding:7px 14px; border-radius:6px; font-weight:600; font-size:.88rem; }
+main { display:grid; grid-template-columns:minmax(0,1.35fr) minmax(320px,1fr); gap:16px; padding:16px 26px; align-items:start; }
+.bloco { background:#fff; border:1px solid var(--borda); border-radius:10px; padding:12px 16px; margin-bottom:12px; box-shadow:0 1px 2px rgba(16,24,40,.06); }
+.bloco h2 { margin:0 0 4px; font-size:.98rem; color:var(--azul); }
+.dica { font-size:.8rem; color:var(--mudo); margin:0 0 9px; }
+.botoes { display:flex; flex-wrap:wrap; gap:8px; }
+button { font:inherit; font-size:.86rem; font-weight:600; border:0; border-radius:6px; padding:8px 14px; cursor:pointer; color:#fff; background:var(--agua); }
+button:hover { filter:brightness(1.1); } button:active { transform:translateY(1px); } button:disabled { opacity:.5; cursor:not-allowed; }
+button.verm { background:var(--verm); } button.verde { background:var(--verde); } button.cinza { background:#607d8b; } button.azul { background:var(--azul); } button.amb { background:#c98400; }
+.auto { background:linear-gradient(100deg,#fff,#f0f7f9); border-color:var(--agua); }
+.auto button.grande { font-size:1rem; padding:11px 20px; }
+.progresso { height:10px; border-radius:999px; background:#e3e9ef; margin-top:10px; overflow:hidden; } .progresso div { height:100%; width:0; background:var(--agua); transition:width .5s; }
+#passo { font-size:.84rem; color:var(--mudo); margin-top:6px; min-height:1.2em; }
+.console { position:sticky; top:12px; background:#0f1b2b; color:#dbe6f3; border-radius:10px; padding:12px 14px; height:calc(100vh - 110px); min-height:420px; overflow:auto; font-family:Consolas,"DejaVu Sans Mono",monospace; font-size:.8rem; line-height:1.5; }
+.console h3 { margin:0 0 8px; font:600 .82rem "Segoe UI",sans-serif; color:#8fb3d9; text-transform:uppercase; letter-spacing:.5px; }
+.l { display:grid; grid-template-columns:64px 1fr; gap:8px; padding:2px 0; border-bottom:1px solid rgba(255,255,255,.05); } .l time { color:#6f87a3; }
+.l.ok span { color:#6ee79a; } .l.erro span { color:#ff8b8b; } .l.alerta span { color:#ffc857; } .l.info span { color:#dbe6f3; }
+@media (max-width:1000px) { main { grid-template-columns:1fr; } .console { position:static; height:380px; } }
+</style>
+</head>
+<body>
+<header>
+  <div><h1>Controle da demonstração</h1><small>Plataforma IoT Integrada · UniEVANGÉLICA · Internet das Coisas</small></div>
+  <div class="chips">
+    <span class="chip" id="chip-central"><i></i>Central</span>
+    <span class="chip" id="chip-borda"><i></i>Nó de borda</span>
+    <span class="chip" id="chip-sims"><i></i>Simuladores: nenhum</span>
+    <a class="botao-painel" id="abrir-painel" href="#" target="_blank" rel="noopener">Abrir o painel</a>
+  </div>
+</header>
+
+<main>
+<section>
+  <div class="bloco auto">
+    <h2>Roteiro automático</h2>
+    <p class="dica">Executa todos os atos, na ordem, sem precisar clicar (cerca de 5 minutos, com tudo acontecendo no painel). Deixe o painel aberto ao lado para a banca acompanhar.</p>
+    <div class="botoes"><button class="grande" id="btn-roteiro" onclick="enviar('roteiro')">▶ Executar o roteiro completo</button><button class="verm" id="btn-cancelar" onclick="enviar('cancelar')" disabled>Cancelar</button></div>
+    <div class="progresso"><div id="barra"></div></div><div id="passo"></div>
+  </div>
+
+  <div class="bloco"><h2>Preparação</h2>
+    <p class="dica">Confira se central e borda estão no ar. "Zerar dados" apaga as leituras e os alarmes, mas mantém o catálogo e as regras.</p>
+    <div class="botoes"><button class="azul" onclick="enviar('checar')">Verificar serviços</button><button class="cinza" onclick="enviar('limpar')">Zerar dados de demonstração</button></div></div>
+
+  <div class="bloco"><h2>Ato 1 · Tráfego em três linguagens</h2>
+    <p class="dica">Mostrar: mapa ficando verde e os indicadores subindo. Java (HTTP), Node.js (MQTT) e Python (MQTT, pelo nó de borda).</p>
+    <div class="botoes"><button class="verde" onclick="enviar('trafego')">Iniciar os simuladores</button><button class="cinza" onclick="enviar('parar')">Parar os simuladores</button></div></div>
+
+  <div class="bloco"><h2>Ato 2 · UC-01 Congestionamento e semáforo</h2>
+    <p class="dica">Mostrar: marcador vermelho pulsando, alarme (~45 s), aviso na tela, botão Reconhecer e resolução automática.</p>
+    <div class="botoes"><button class="verm" onclick="enviar('congestionar')">Provocar congestionamento (Rua 10)</button><button class="amb" onclick="enviar('semaforo')">Falha no semáforo (Rua 10)</button></div></div>
+
+  <div class="bloco"><h2>Ato 3 · UC-02 Queda do link da borda</h2>
+    <p class="dica">Mostrar: fila local crescendo, nó "Sem sincronizar", depois a fila indo a zero e o gráfico sem buraco. Para a prova, pare o simulador antes.</p>
+    <div class="botoes"><button class="verm" onclick="enviar('derrubar')">Derrubar o link</button><button class="verde" onclick="enviar('restaurar')">Restaurar o link</button><button class="azul" onclick="enviar('prova')">Prova: enviadas = gravadas</button></div></div>
+
+  <div class="bloco"><h2>Ato 4 · UC-03 Formato próprio e mensagens inválidas</h2>
+    <p class="dica">Mostrar: cruzamento da Rua 15 saindo do cinza (adaptador) e o motivo da recusa na fila de mensagens inválidas.</p>
+    <div class="botoes"><button onclick="enviar('adaptador')">Rodar o adaptador do fornecedor</button><button class="amb" onclick="enviar('invalida')">Enviar mensagem inválida (DLQ)</button></div></div>
+
+  <div class="bloco"><h2>Ato 5 · UC-04 Domínio novo sem programar</h2>
+    <p class="dica">Mostrar: domínio, perfil, regra e dispositivo criados por API; vaga lotada abre alarme, vaga liberada resolve.</p>
+    <div class="botoes"><button class="azul" onclick="enviar('uc4_criar')">Criar domínio Estacionamento</button><button class="verm" onclick="enviar('uc4_lotado')">Vagas livres = 0</button><button class="verde" onclick="enviar('uc4_livre')">Vagas livres = 5</button><button class="cinza" onclick="enviar('uc4_limpar')">Limpar o domínio de teste</button></div></div>
+
+  <div class="bloco"><h2>Ato 6 · Carga</h2>
+    <p class="dica">Rode por último: grava 20.000 mensagens constantes e suja os gráficos. Meta do documento: 1.000 mensagens por segundo.</p>
+    <div class="botoes"><button onclick="enviar('carga')">Teste de carga (20.000 mensagens)</button></div></div>
+</section>
+
+<aside class="console" id="console"><h3>Registro</h3><div id="linhas"></div></aside>
+</main>
+
+<script>
+let total = 0;
+const $ = (id) => document.getElementById(id);
+const esc = (t) => String(t).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+async function enviar(acao) { try { await fetch('/acao/' + acao, { method: 'POST' }); } catch (e) { /* o registro mostra o resultado */ } setTimeout(atualizar, 300); }
+function chip(id, ok, texto) { const el = $(id); el.className = 'chip ' + (ok ? 'ok' : 'falha'); el.lastChild.textContent = texto; }
+async function atualizar() {
+  let d; try { d = await (await fetch('/estado?desde=' + total)).json(); } catch (e) { return; }
+  total = d.total;
+  const linhas = $('linhas'); const c = $('console'); const noFim = c.scrollHeight - c.scrollTop - c.clientHeight < 60;
+  d.logs.forEach(([h, n, t]) => { linhas.insertAdjacentHTML('beforeend', '<div class="l ' + n + '"><time>' + h + '</time><span>' + esc(t) + '</span></div>'); });
+  if (d.logs.length && noFim) { c.scrollTop = c.scrollHeight; }
+  chip('chip-central', d.servicos.central, 'Central ' + (d.servicos.central ? 'no ar' : 'fora do ar'));
+  chip('chip-borda', d.servicos.borda, 'Nó de borda ' + (d.servicos.borda ? 'no ar' : 'fora do ar'));
+  const rodando = Object.keys(d.procs).filter((n) => d.procs[n]);
+  const sims = $('chip-sims'); sims.className = 'chip ' + (rodando.length ? 'ok' : ''); sims.lastChild.textContent = 'Simuladores: ' + (rodando.length ? rodando.join(', ') : 'nenhum');
+  $('abrir-painel').href = d.central + '/painel';
+  const r = d.roteiro; $('btn-roteiro').disabled = r.rodando; $('btn-cancelar').disabled = !r.rodando;
+  $('barra').style.width = (r.de ? Math.round((r.rodando ? r.i - 1 : (r.i ? r.de : 0)) * 100 / r.de) : 0) + '%';
+  $('passo').textContent = r.rodando ? 'Passo ' + r.i + ' de ' + r.de + ': ' + r.passo : '';
+}
+atualizar(); setInterval(atualizar, 1000);
+</script>
+</body>
+</html>

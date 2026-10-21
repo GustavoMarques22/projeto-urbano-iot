@@ -71,6 +71,21 @@ Depois do login (página própria, com a marca da instituição), o painel mostr
 - **Gráfico** de fluxo e velocidade com a linha do limite de congestionamento, em leituras (60 min) ou média por hora (24 h).
 - **Dispositivos** com tipo, área e situação, e filtro de texto.
 
+## Controle da demonstração (opcional)
+
+Em vez de digitar os comandos dos atos, rode uma página de controle com um botão para cada ato e um botão que executa o **roteiro completo sozinho**
+(cerca de 5 minutos). Ela só usa o Python e fica separada do sistema: não altera nada dele.
+
+```bash
+python3 demo/controle.py                 # abra http://localhost:8090 (de preferência em outra tela, ao lado do painel)
+python3 demo/controle.py --fator 4       # roteiro 4x mais rápido, para ensaiar
+```
+
+Antes, deixe no ar o `docker compose` (PostgreSQL e Mosquitto), a central (8080) e o nó de borda (8081). A página inicia e para os simuladores Java, Node.js
+e Python, provoca congestionamento e falha de semáforo, derruba e restaura o link da borda, roda o adaptador, envia uma mensagem inválida, cria o domínio
+Estacionamento e envia as leituras de vagas, roda o teste de carga e mostra a prova "enviadas = gravadas". Opções: `--central`, `--borda`, `--usuario`,
+`--senha`, `--porta`, `--intervalo`. Use o ambiente virtual de `simuladores/python` se ele existir; senão, o `python3` do sistema precisa ter o `paho-mqtt`.
+
 ## Simuladores
 
 ```bash
@@ -91,8 +106,8 @@ Cada um aceita `--help`/argumentos para mudar o intervalo e provocar situações
 **UC-01 · Congestionamento.** A regra vem com janela de 10 min; para a demonstração, reduza-a para 30 s:
 
 ```bash
-curl -u SEU_USUARIO:SUA_SENHA http://localhost:8080/api/v1/regras                       # confira o id da regra "Congestionamento" (1)
-curl -u SEU_USUARIO:SUA_SENHA -X POST "http://localhost:8080/api/v1/regras/1/janela?segundos=30"
+curl -u admin:admin123 http://localhost:8080/api/v1/regras                       # confira o id da regra "Congestionamento" (1)
+curl -u admin:admin123 -X POST "http://localhost:8080/api/v1/regras/1/janela?segundos=30"
 cd simuladores/java && java Simulador.java --intervalo 3 --congestionar cruz-brasil-rua10 --congestionar-apos 15 --congestionar-por 120
 ```
 
@@ -120,19 +135,19 @@ Dados com mais de 10 min de atraso entram marcados como `atrasada` e não dispar
 ```bash
 python adaptadores/python/adaptador_fornecedor.py --demo 5               # o "Fornecedor X" envia um JSON próprio e o adaptador traduz
 mosquitto_pub -p 1883 -t semob/centro/mobilidade/contador-brasil-rua10-01/telemetria -m '{"versao":"1.0"}'
-curl -u SEU_USUARIO:SUA_SENHA http://localhost:8080/api/v1/mensagens-invalidas  # a mensagem inválida está na DLQ, com o motivo
+curl -u admin:admin123 http://localhost:8080/api/v1/mensagens-invalidas  # a mensagem inválida está na DLQ, com o motivo
 curl -H "Content-Type: application/json" -d '{"versao":"1.0"}' http://localhost:8080/api/v1/ingestao/validar   # validador do integrador
 ```
 
 **UC-04 · Domínio novo só por configuração (estacionamento).**
 
 ```bash
-curl -u SEU_USUARIO:SUA_SENHA -H "Content-Type: application/json" -d '{"slug":"estacionamento","nome":"Estacionamento"}' http://localhost:8080/api/v1/catalogo/dominios
-curl -u SEU_USUARIO:SUA_SENHA -H "Content-Type: application/json" -d '{"dominio":"estacionamento","slug":"sensor-vaga","nome":"Sensor de vaga","intervaloS":120,"grandezas":[{"grandeza":"vagas_livres","unidade":"{vaga}","min":0,"max":200}]}' http://localhost:8080/api/v1/catalogo/perfis
-curl -u SEU_USUARIO:SUA_SENHA -H "Content-Type: application/json" -d '{"slug":"vagas-praca-01","dominio":"estacionamento","site":"centro","area":"cruz-central-av2","perfil":"sensor-vaga","fabricante":"Simulado","firmware":"1.0"}' http://localhost:8080/api/v1/dispositivos
+curl -u admin:admin123 -H "Content-Type: application/json" -d '{"slug":"estacionamento","nome":"Estacionamento"}' http://localhost:8080/api/v1/catalogo/dominios
+curl -u admin:admin123 -H "Content-Type: application/json" -d '{"dominio":"estacionamento","slug":"sensor-vaga","nome":"Sensor de vaga","intervaloS":120,"grandezas":[{"grandeza":"vagas_livres","unidade":"{vaga}","min":0,"max":200}]}' http://localhost:8080/api/v1/catalogo/perfis
+curl -u admin:admin123 -H "Content-Type: application/json" -d '{"slug":"vagas-praca-01","dominio":"estacionamento","site":"centro","area":"cruz-central-av2","perfil":"sensor-vaga","fabricante":"Simulado","firmware":"1.0"}' http://localhost:8080/api/v1/dispositivos
 # a resposta traz o token do dispositivo; use-o abaixo
 curl -H "Content-Type: application/json" -H "X-Device-Token: COLE_O_TOKEN" -d "{\"versao\":\"1.0\",\"id_mensagem\":\"vaga-$(date +%s)\",\"dispositivo\":\"vagas-praca-01\",\"tipo\":\"telemetria\",\"timestamp\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"medidas\":[{\"grandeza\":\"vagas_livres\",\"valor\":12}]}" http://localhost:8080/api/v1/ingestao
-curl -u SEU_USUARIO:SUA_SENHA -H "Content-Type: application/json" -d '{"nome":"Estacionamento lotado","dominio":"estacionamento","grandeza":"vagas_livres","operador":"=","limite":0,"janelaS":900,"severidade":"MEDIA"}' http://localhost:8080/api/v1/regras
+curl -u admin:admin123 -H "Content-Type: application/json" -d '{"nome":"Estacionamento lotado","dominio":"estacionamento","grandeza":"vagas_livres","operador":"=","limite":0,"janelaS":900,"severidade":"MEDIA"}' http://localhost:8080/api/v1/regras
 ```
 
 Nenhuma linha de código foi alterada: o domínio novo já tem histórico, regras, alarmes e API.
