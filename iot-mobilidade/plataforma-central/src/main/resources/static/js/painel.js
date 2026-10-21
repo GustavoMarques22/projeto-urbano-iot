@@ -34,6 +34,9 @@ let primeiraCarga = true;
 const anterior = { alarmes: null, nos: null, dispositivos: null, link: null };
 const marcadores = {};
 const htmlMarcador = {};
+let ajustando = false;
+let usuarioMexeu = false;
+let ciclosAjuste = 0;
 
 const nomeArea = (slug) => (areas.find((a) => a.slug === slug) || {}).nome || slug;
 
@@ -67,6 +70,17 @@ function registrar(tipo, texto, avisar) {
 const mapa = L.map('mapa').setView([-16.318, -48.95], 13);
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(mapa);
 
+function ajustarMapa() {
+  const pts = areas.filter((a) => a.lat !== null && a.lon !== null).map((a) => [a.lat, a.lon]);
+  if (!pts.length) { return; }
+  ajustando = true;
+  mapa.invalidateSize();
+  mapa.fitBounds(pts, { padding: [50, 50], maxZoom: 15, animate: false });
+  ajustando = false;
+}
+mapa.on('zoomstart dragstart', () => { if (!ajustando) { usuarioMexeu = true; } });
+window.addEventListener('resize', () => { if (!usuarioMexeu) { ajustarMapa(); } });
+
 function htmlPino(a) {
   const classes = ['pino', a.nivel];
   if (a.via_borda) { classes.push('borda'); }
@@ -99,7 +113,7 @@ async function carregarAreas() {
     const tip = marcadores[a.slug].getTooltip();
     if (tip) { tip.setContent(textoTooltip(a)); } else { marcadores[a.slug].bindTooltip(textoTooltip(a), { direction: 'top', offset: [0, -20] }); }
   });
-  if (primeiraCarga && pontos.length) { mapa.fitBounds(pontos, { padding: [50, 50], maxZoom: 15 }); }
+  if (!usuarioMexeu && ciclosAjuste < 4) { ajustarMapa(); ciclosAjuste += 1; } // refaz nos primeiros ciclos, até o layout assentar
 
   const cont = { FLUIDO: 0, MODERADO: 0, CONGESTIONADO: 0, SEM_DADOS: 0 };
   areas.forEach((a) => { cont[a.nivel] += 1; });
@@ -151,18 +165,19 @@ async function carregarAlarmes() {
       if (!antes) {
         registrar(a.severidade === 'CRITICA' || a.severidade === 'ALTA' ? 'erro' : 'alerta',
           a.regra_nome + ' em ' + nomeArea(a.area_slug), 'Novo alarme ' + a.severidade);
-      } else if (antes !== a.estado && a.estado === 'RECONHECIDO') {
+      } else if (antes.estado !== a.estado && a.estado === 'RECONHECIDO') {
         registrar('info', 'Alarme reconhecido: ' + a.regra_nome + ' em ' + nomeArea(a.area_slug));
       }
     });
     Object.keys(anterior.alarmes).forEach((id) => {
       if (!alarmes.some((a) => String(a.id) === id)) {
-        registrar('ok', 'Alarme resolvido automaticamente (id ' + id + ')', 'Alarme resolvido');
+        const r = anterior.alarmes[id];
+        registrar('ok', 'Alarme resolvido: ' + r.regra_nome + ' em ' + nomeArea(r.area_slug), 'Alarme resolvido');
       }
     });
   }
   anterior.alarmes = {};
-  alarmes.forEach((a) => { anterior.alarmes[a.id] = a.estado; });
+  alarmes.forEach((a) => { anterior.alarmes[a.id] = a; });
 
   const crit = alarmes.filter((a) => a.severidade === 'CRITICA').length;
   const altos = alarmes.filter((a) => a.severidade === 'ALTA').length;
@@ -368,6 +383,7 @@ async function ciclo() {
 
 $('modo').addEventListener('change', () => carregarGrafico().catch((e) => console.warn(e.message)));
 $('filtro').addEventListener('input', desenharDispositivos);
+$('btn-ajustar').addEventListener('click', () => { usuarioMexeu = false; ajustarMapa(); });
 $('btn-tela-cheia').addEventListener('click', () => {
   if (document.fullscreenElement) { document.exitFullscreen(); } else { document.documentElement.requestFullscreen().catch(() => { }); }
 });

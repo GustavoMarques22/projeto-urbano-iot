@@ -16,6 +16,7 @@ button.ghost { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255
 button.perigo { background: #c62828; }
 button.ok { background: #2e7d32; }
 button.pequeno { padding: 4px 10px; font-size: .78rem; }
+button.claro { background: var(--azul-claro); color: var(--azul); margin-left: 8px; }
 
 /* ---------- topo ---------- */
 .topo { background: linear-gradient(100deg, var(--azul) 0%, var(--azul-2) 100%); color: #fff; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 10px 28px; border-bottom: 4px solid var(--agua); }
