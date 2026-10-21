@@ -120,7 +120,7 @@ Dados com mais de 10 min de atraso entram marcados como `atrasada` e não dispar
 ```bash
 python adaptadores/python/adaptador_fornecedor.py --demo 5               # o "Fornecedor X" envia um JSON próprio e o adaptador traduz
 mosquitto_pub -p 1883 -t semob/centro/mobilidade/contador-brasil-rua10-01/telemetria -m '{"versao":"1.0"}'
-curl -u admin:admin123 http://localhost:8080/api/v1/mensagens-invalidas  # a mensagem inválida está na DLQ, com o motivo
+curl -u SEU_USUARIO:SUA_SENHA http://localhost:8080/api/v1/mensagens-invalidas  # a mensagem inválida está na DLQ, com o motivo
 curl -H "Content-Type: application/json" -d '{"versao":"1.0"}' http://localhost:8080/api/v1/ingestao/validar   # validador do integrador
 ```
 
